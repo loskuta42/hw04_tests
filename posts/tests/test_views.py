@@ -54,7 +54,9 @@ class PostPagesTest(TestCase):
                         'username': cls.author.username,
                         'post_id': cls.post.pk
                     }
-                    ): 'post.html'
+                    ): 'post.html',
+            reverse('about:author'): 'about/author.html',
+            reverse('about:tech'): 'about/tech.html'
         }
         cls.form_fields = {
             'text': forms.fields.CharField,
@@ -171,6 +173,39 @@ class PostPagesTest(TestCase):
         post = PostPagesTest.post
         response_post = response.context.get('page').object_list[0]
         self.assertEqual(post, response_post)
+
+    def test_about_author_use_correct_view(self):
+        """Шаблон author использует корректный view."""
+        response = PostPagesTest.guest_client.get(
+            reverse('about:author')
+        )
+        response_author = response.context.get('author')
+        response_github = response.context.get('github')
+        self.assertEqual(
+            response_author,
+            'Автор проекта - Алексей Лобарев.'
+        )
+        self.assertEqual(
+            response_github,
+            '<a href="https://github.com/loskuta42/">'
+            'Ссылка на github</a>'
+        )
+
+    def test_about_tech_use_correct_view(self):
+        """Шаблон tech использует корректный view."""
+        response = PostPagesTest.guest_client.get(
+            reverse('about:tech')
+        )
+        response_pycharm = response.context.get('pycharm')
+        response_tech = response.context.get('tech')
+        self.assertEqual(
+            response_pycharm,
+            'Сайт написан при использовании Pycharm.'
+        )
+        self.assertEqual(
+            response_tech,
+            'А так же модели, формы, декораторы и многое другое'
+        )
 
 
 class PaginatorViewsTest(TestCase):
