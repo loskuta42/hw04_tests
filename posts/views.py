@@ -58,7 +58,7 @@ def profile(request, username):
     paginator = Paginator(author_posts, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
-    return render(request, "profile.html", {"page": page, "count": count, "author":author})
+    return render(request, "profile.html", {"page": page, "count": count, "author": author})
 
 
 def post_view(request, username, post_id):

@@ -65,7 +65,10 @@ class PostURLTests(TestCase):
         """Страница /<username>/<post_id>/edit/ перенаправит
          авторизированного пользователя(не автора поста) на страницу поста.
         """
-        response = PostURLTests.authorized_not_author_client.get('/test_author/1/edit/', follow=True)
+        response = PostURLTests.authorized_not_author_client.get(
+            '/test_author/1/edit/',
+            follow=True
+        )
         self.assertRedirects(
             response, '/test_author/1/')
 
@@ -73,10 +76,10 @@ class PostURLTests(TestCase):
         """Страница /<username>/<post_id>/edit/ доступна
          автору поста.
         """
-        response = PostURLTests.authorized_author_client.get('/test_author/1/edit/')
+        response = PostURLTests.authorized_author_client.get(
+            '/test_author/1/edit/'
+        )
         self.assertEqual(response.status_code, 200)
-
-
 
     def test_group_slug(self):
         """Страница /group/test-slug/ доступна любому пользователю."""
@@ -86,6 +89,16 @@ class PostURLTests(TestCase):
     def test_new(self):
         """Страница /new/ доступна авторизованному пользователю."""
         response = PostURLTests.authorized_author_client.get('/new/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_about_author(self):
+        """Страница /about/author/ доступна любому пользователю."""
+        response = PostURLTests.guest_client.get('/about/author/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_about_tech(self):
+        """Страница /about/author/ доступна любому пользователю."""
+        response = PostURLTests.guest_client.get('/about/tech/')
         self.assertEqual(response.status_code, 200)
 
     def test_urls_uses_correct_template(self):
