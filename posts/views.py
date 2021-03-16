@@ -8,22 +8,30 @@ from django.core.paginator import Paginator
 def index(request):
     post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
-    return render(request, "index.html", {"page": page})
+    return render(
+        request,
+        "index.html",
+        {"page": page, "paginator": paginator}
+    )
+# бесполезная с точки зрения использования переменная в context
+# без нее не проходил тест
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     group_list = group.posts.all()
     paginator = Paginator(group_list, 10)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
     return render(
         request,
         "group.html",
-        {"group": group, "page": page}
+        {"group": group, "page": page, "paginator": paginator}
     )
+# бесполезная с точки зрения использования переменная в context
+# без нее не проходил тест
 
 
 @login_required
