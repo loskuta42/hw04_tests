@@ -9,8 +9,6 @@ class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # Устанавливаем данные для тестирования
-        # Создаём экземпляр клиента. Он неавторизован.
         cls.guest_client = Client()
         cls.author = User.objects.create_user(
             username='test_author'
