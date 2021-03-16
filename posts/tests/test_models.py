@@ -61,4 +61,3 @@ class PostModelTest(TestCase):
         expected_object_group = group.title
         self.assertEqual(expected_object_group, str(group))
         self.assertEqual(expected_object_post, str(post))
-
