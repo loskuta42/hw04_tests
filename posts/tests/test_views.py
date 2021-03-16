@@ -234,7 +234,7 @@ class PaginatorViewsTest(TestCase):
 
     def test_first_page_contains_ten_records(self):
         """Paginator предоставляет ожидаемое количество постов
-         на первую страницую"""
+         на первую страницую."""
         for i in PaginatorViewsTest.templates.keys():
             with self.subTest(i=i):
                 response = self.client.get(self.templates[i])
@@ -244,7 +244,7 @@ class PaginatorViewsTest(TestCase):
 
     def test_second_page_contains_three_records(self):
         """Paginator предоставляет ожидаемое количество постов
-         на вторую страницую"""
+         на вторую страницую."""
         for i in PaginatorViewsTest.templates.keys():
             with self.subTest(i=i):
                 response = self.client.get(self.templates[i] + '?page=2')
