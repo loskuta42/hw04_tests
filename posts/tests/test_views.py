@@ -45,9 +45,8 @@ class PostPagesTest(TestCase):
                         'post_id': cls.post.pk
                     }
                     ): 'new.html',
-            reverse(
-                'profile',
-                args=[cls.author.username]
+            reverse('profile',
+                    args=[cls.author.username]
                     ): 'profile.html',
             reverse('post',
                     kwargs={
@@ -134,7 +133,7 @@ class PostPagesTest(TestCase):
                 kwargs={
                     'username': PostPagesTest.author.username,
                     'post_id': PostPagesTest.post.pk
-                        }
+                }
             )
         )
         post = PostPagesTest.post
@@ -233,7 +232,9 @@ class PaginatorViewsTest(TestCase):
             3: reverse('profile', args=[cls.author.username])
         }
 
-    def test_first_page_containse_ten_records(self):
+    def test_first_page_contains_ten_records(self):
+        """Paginator предоставляет ожидаемое количество постов
+         на первую страницую"""
         for i in PaginatorViewsTest.templates.keys():
             with self.subTest(i=i):
                 response = self.client.get(self.templates[i])
@@ -241,7 +242,9 @@ class PaginatorViewsTest(TestCase):
                     'page'
                 ).object_list), 10)
 
-    def test_second_page_containse_three_records(self):
+    def test_second_page_contains_three_records(self):
+        """Paginator предоставляет ожидаемое количество постов
+         на вторую страницую"""
         for i in PaginatorViewsTest.templates.keys():
             with self.subTest(i=i):
                 response = self.client.get(self.templates[i] + '?page=2')

@@ -12,10 +12,14 @@ class PostURLTests(TestCase):
         # Устанавливаем данные для тестирования
         # Создаём экземпляр клиента. Он неавторизован.
         cls.guest_client = Client()
-        cls.author = User.objects.create_user(username='test_author')
+        cls.author = User.objects.create_user(
+            username='test_author'
+        )
         cls.authorized_author_client = Client()
         cls.authorized_author_client.force_login(cls.author)
-        cls.not_author = User.objects.create_user(username='test_not_author')
+        cls.not_author = User.objects.create_user(
+            username='test_not_author'
+        )
         cls.authorized_not_author_client = Client()
         cls.authorized_not_author_client.force_login(cls.not_author)
         cls.group = Group.objects.create(
@@ -57,7 +61,10 @@ class PostURLTests(TestCase):
         """Страница /<username>/<post_id>/edit/ перенаправит анонимного
         пользователя на страницу логина.
         """
-        response = PostURLTests.guest_client.get('/test_author/1/edit/', follow=True)
+        response = PostURLTests.guest_client.get(
+            '/test_author/1/edit/',
+            follow=True
+        )
         self.assertRedirects(
             response, '/auth/login/?next=/test_author/1/edit/')
 

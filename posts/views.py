@@ -19,7 +19,11 @@ def group_posts(request, slug):
     paginator = Paginator(group_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, "group.html", {"group": group, "page": page})
+    return render(
+        request,
+        "group.html",
+        {"group": group, "page": page}
+    )
 
 
 @login_required
@@ -58,7 +62,11 @@ def profile(request, username):
     paginator = Paginator(author_posts, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
-    return render(request, "profile.html", {"page": page, "count": count, "author": author})
+    return render(
+        request,
+        "profile.html",
+        {"page": page, "count": count, "author": author}
+    )
 
 
 def post_view(request, username, post_id):
@@ -66,7 +74,11 @@ def post_view(request, username, post_id):
     post = get_object_or_404(Post, id=post_id)
     author_posts = author.posts.all()
     count = author_posts.count()
-    return render(request, "post.html", {"author": author, "post": post, "count": count})
+    return render(
+        request,
+        "post.html",
+        {"author": author, "post": post, "count": count}
+    )
 
 
 @login_required
@@ -75,7 +87,11 @@ def post_edit(request, username, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method != "POST":
         if post.author != request.user:
-            return redirect("post", post_id=post.id, username=author.username)
+            return redirect(
+                "post",
+                post_id=post.id,
+                username=author.username
+            )
         form = PostForm(instance=post)
         return render(
             request,
@@ -86,7 +102,8 @@ def post_edit(request, username, post_id):
                 "button": "Сохранить запись",
                 "post": post,
                 "author": author
-            })
+            }
+        )
     form = PostForm(request.POST, instance=post)
     if not form.is_valid():
         return render(
@@ -97,10 +114,7 @@ def post_edit(request, username, post_id):
                 "title": "Редактировать запись",
                 "button": "Сохранить запись",
                 "post": post
-            })
+            }
+        )
     form.save()
-    return redirect("profile")
-    # тут тело функции. Не забудьте проверить,
-    # что текущий пользователь — это автор записи.
-    # В качестве шаблона страницы редактирования укажите шаблон создания новой записи
-    # который вы создали раньше (вы могли назвать шаблон иначе)
+    return redirect("post", post_id=post.id, username=author.username)
