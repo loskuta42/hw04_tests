@@ -1,8 +1,9 @@
-from django.test import TestCase, Client
-from posts.models import Post, Group
-from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django import forms
+from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
+from django.urls import reverse
+
+from posts.models import Group, Post
 
 User = get_user_model()
 
@@ -38,13 +39,13 @@ class PostPagesTest(TestCase):
                 'group_posts',
                 args=[cls.group.slug]
             ): 'group.html',
-            reverse('new_post'): 'new.html',
+            reverse('new_post'): 'posts/new.html',
             reverse('post_edit',
                     kwargs={
                         'username': cls.author.username,
                         'post_id': cls.post.pk
                     }
-                    ): 'new.html',
+                    ): 'posts/new.html',
             reverse('profile',
                     args=[cls.author.username]
                     ): 'profile.html',

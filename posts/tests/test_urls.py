@@ -1,5 +1,6 @@
-from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
+
 from posts.models import Group, Post
 
 User = get_user_model()
@@ -26,18 +27,18 @@ class PostURLTests(TestCase):
             description='test_description'
         )
         cls.post = Post.objects.create(
-            id=1,
             text='test_post',
             group=cls.group,
             author=cls.author
         )
         cls.templates_url_names = {
             '/': 'index.html',
-            '/group/test-slug/': 'group.html',
-            '/new/': 'new.html',
-            '/test_author/1/edit/': 'new.html',
-            '/test_author/': 'profile.html',
-            '/test_author/1/': 'post.html'
+            f'/group/{cls.group.slug}/': 'group.html',
+            '/new/': 'posts/new.html',
+            (f'/{cls.author.username}/'
+             f'{cls.post.pk}/edit/'): 'posts/new.html',
+            f'/{cls.author.username}/': 'profile.html',
+            f'/{cls.author.username}/{cls.post.pk}/': 'post.html'
         }
 
     def test_index(self):
@@ -47,12 +48,16 @@ class PostURLTests(TestCase):
 
     def test_profile(self):
         """Страница /<username>/ доступна любому пользователю."""
-        response = PostURLTests.guest_client.get('/test_author/')
+        response = PostURLTests.guest_client.get(
+            f'/{PostURLTests.author.username}/'
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_profile_post(self):
         """Страница /<username>/<post_id>/ доступна любому пользователю."""
-        response = PostURLTests.guest_client.get('/test_author/1/')
+        response = PostURLTests.guest_client.get(
+            f'/{PostURLTests.author.username}/{PostURLTests.post.pk}/'
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_profile_post_edit_not_auth(self):
@@ -60,35 +65,45 @@ class PostURLTests(TestCase):
         пользователя на страницу логина.
         """
         response = PostURLTests.guest_client.get(
-            '/test_author/1/edit/',
+            (f'/{PostURLTests.author.username}/'
+             f'{PostURLTests.post.pk}/edit/'),
             follow=True
         )
         self.assertRedirects(
-            response, '/auth/login/?next=/test_author/1/edit/')
+            response,
+            (f'/auth/login/?next=/'
+             f'{PostURLTests.author.username}/'
+             f'{PostURLTests.post.pk}/edit/')
+        )
 
     def test_profile_post_edit_auth_not_author(self):
         """Страница /<username>/<post_id>/edit/ перенаправит
          авторизированного пользователя(не автора поста) на страницу поста.
         """
         response = PostURLTests.authorized_not_author_client.get(
-            '/test_author/1/edit/',
+            (f'/{PostURLTests.author.username}/'
+             f'{PostURLTests.post.pk}/edit/'),
             follow=True
         )
         self.assertRedirects(
-            response, '/test_author/1/')
+            response, (f'/{PostURLTests.author.username}/'
+                       f'{PostURLTests.post.pk}/'))
 
     def test_profile_post_edit_auth_author(self):
         """Страница /<username>/<post_id>/edit/ доступна
          автору поста.
         """
         response = PostURLTests.authorized_author_client.get(
-            '/test_author/1/edit/'
+            (f'/{PostURLTests.author.username}/'
+             f'{PostURLTests.post.pk}/edit/')
         )
         self.assertEqual(response.status_code, 200)
 
     def test_group_slug(self):
         """Страница /group/test-slug/ доступна любому пользователю."""
-        response = PostURLTests.guest_client.get('/group/test-slug/')
+        response = PostURLTests.guest_client.get(
+            f'/group/{PostURLTests.group.slug}/'
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_new(self):
