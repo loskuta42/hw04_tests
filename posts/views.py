@@ -97,7 +97,7 @@ def post_edit(request, username, post_id):
             username=post.author.username
         )
     form = PostForm(request.POST or None, instance=post)
-    if request.method != 'POST' or not form.is_valid():
+    if request.method != 'POST' and not form.is_valid():
         return render(
             request,
             'posts/new.html',
