@@ -1,18 +1,18 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block title %}Мой профиль{% endblock %}
 {% block content %}
 <main role="main" class="container">
     <div class="row">
         <div class="col-md-3 mb-3 mt-1">
-            {% include "includes//card_author.html" %}
+            {% include 'includes/card_author.html' %}
         </div>
         <div class="col-md-9">
             {% for post in page %}
             <div class="card mb-3 mt-1 shadow-sm">
-                {% include "includes//card_post.html" %}
+                {% include 'includes/card_post.html' %}
             </div>
                 {% endfor %}
-                {% include "includes/paginator.html" %}
+                {% include 'includes/paginator.html' %}
         </div>
     </div>
 </main>

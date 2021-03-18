@@ -10,7 +10,7 @@ from .models import Group, Post, User
 
 def index(request):
     post_list = Post.objects.all()
-    paginator = Paginator(post_list, settings.PAR_PAGE)
+    paginator = Paginator(post_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -23,7 +23,7 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     group_list = group.posts.all()
-    paginator = Paginator(group_list, settings.PAR_PAGE)
+    paginator = Paginator(group_list, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -56,8 +56,7 @@ def new_post(request):
                 'button': 'Создать новую запись'
             })
     post = form.save(commit=False)
-    username = request.user.username
-    post.author = get_object_or_404(User, username=username)
+    post.author = request.user
     post.save()
     return redirect('index')
 
@@ -66,7 +65,7 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     author_posts = author.posts.all()
     count = author_posts.count()
-    paginator = Paginator(author_posts, settings.PAR_PAGE)
+    paginator = Paginator(author_posts, settings.PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -97,16 +96,20 @@ def post_edit(request, username, post_id):
             username=post.author.username
         )
     form = PostForm(request.POST or None, instance=post)
-    if request.method != 'POST' and not form.is_valid():
-        return render(
-            request,
-            'posts/new.html',
-            {
-                'form': form,
-                'title': 'Редактировать запись',
-                'button': 'Сохранить запись',
-                'post': post
-            }
+    if form.is_valid():
+        form.save()
+        return redirect(
+            'post',
+            post_id=post.id,
+            username=post.author.username
         )
-    form.save()
-    return redirect('post', post_id=post.id, username=post.author.username)
+    return render(
+        request,
+        'posts/new.html',
+        {
+            'form': form,
+            'title': 'Редактировать запись',
+            'button': 'Сохранить запись',
+            'post': post
+        }
+    )
