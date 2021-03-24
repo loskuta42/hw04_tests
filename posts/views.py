@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from yatube import settings
 
-from .forms import PostForm
-from .models import Group, Post, User
+from .forms import PostForm, CommentForm
+from .models import Group, Post, User, Comment
 
 
 def index(request):
@@ -36,7 +36,7 @@ def group_posts(request, slug):
 @login_required
 def new_post(request):
     form = PostForm(request.POST or None, files=request.FILES or None)
-    if  form.is_valid():
+    if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
         post.save()
@@ -48,7 +48,8 @@ def new_post(request):
             'form': form,
             'title': 'Новая запись',
             'button': 'Создать новую запись'
-        })
+        }
+    )
 
 
 def profile(request, username):
@@ -65,14 +66,46 @@ def profile(request, username):
     )
 
 
+@login_required
+def add_comment(request, post_id, username):
+    post = get_object_or_404(Post, id=post_id, author__username=username)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+        return redirect(
+            'post',
+            post_id=post.id,
+            username=post.author.username
+        )
+    return render(
+        request,
+        'includes/comments.html',
+        {
+            'form': form,
+            'post': post
+        }
+    )
+
+
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
+    form = CommentForm()
     author_posts = post.author.posts.all()
     count = author_posts.count()
+    comments = post.comments.all()
     return render(
         request,
         'post.html',
-        {'author': post.author, 'post': post, 'count': count}
+        {
+            'author': post.author,
+            'post': post,
+            'count': count,
+            'comments': comments,
+            'form': form
+        }
     )
 
 
@@ -107,6 +140,8 @@ def post_edit(request, username, post_id):
             'post': post
         }
     )
+
+
 
 
 def page_not_found(request, exception):

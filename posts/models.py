@@ -66,6 +66,9 @@ class Comment(models.Model):
         help_text='Напишите текст комментария'
     )
     created = models.DateTimeField(
-        'date created',
+        'date_created',
         auto_now_add=True
     )
+
+    class Meta:
+        ordering = ('-created',)

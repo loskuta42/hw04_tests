@@ -7,7 +7,7 @@ urlpatterns = [
     path(
         'group/<slug:slug>/',
         views.group_posts,
-        name='group_posts'
+        name='group'
     ),
     path('new/', views.new_post, name='new_post'),
     path('<str:username>/', views.profile, name='profile'),
@@ -16,5 +16,10 @@ urlpatterns = [
         '<str:username>/<int:post_id>/edit/',
         views.post_edit,
         name='post_edit'
+    ),
+    path(
+        '<username>/<int:post_id>/comment',
+        views.add_comment,
+        name='add_comment'
     ),
 ]

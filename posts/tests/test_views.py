@@ -55,7 +55,7 @@ class PostPagesTest(TestCase):
         cls.templ_names = {
             reverse('index'): 'index.html',
             reverse(
-                'group_posts',
+                'group',
                 args=[cls.group.slug]
             ): 'group.html',
             reverse('new_post'): 'posts/new.html',
@@ -122,7 +122,7 @@ class PostPagesTest(TestCase):
     def test_group_page_list_is_1(self):
         """На страницу group передаётся ожидаемое количество объектов."""
         response = PostPagesTest.auth_author_client.get(
-            reverse('group_posts', args=[PostPagesTest.group.slug])
+            reverse('group', args=[PostPagesTest.group.slug])
         )
         correct_post = response.context.get(
             'page'
@@ -135,7 +135,14 @@ class PostPagesTest(TestCase):
         response = PostPagesTest.guest_client.get(reverse('index'))
         post = PostPagesTest.post
         response_post = response.context.get('page').object_list[0]
-        self.assertEqual(post, response_post)
+        post_author = response_post.author
+        post_group = response_post.group
+        post_text = response_post.text
+        post_image =  response_post.image
+        self.assertEqual(post_author, PostPagesTest.author)
+        self.assertEqual(post_group, PostPagesTest.group)
+        self.assertEqual(post_text, post.text)
+        self.assertEqual(post_image, post.image)
 
     def test_index_show_correct_profile(self):
         """Шаблон profile сформирован с правильным контекстом."""
@@ -144,10 +151,17 @@ class PostPagesTest(TestCase):
         )
         post = PostPagesTest.post
         author = PostPagesTest.author
-        response_post = response.context.get('page').object_list[0]
         response_author = response.context.get('author')
         response_count = response.context.get('count')
-        self.assertEqual(post, response_post)
+        response_post = response.context.get('page').object_list[0]
+        post_author = response_post.author
+        post_group = response_post.group
+        post_text = response_post.text
+        post_image = response_post.image
+        self.assertEqual(post_author, author)
+        self.assertEqual(post_group, PostPagesTest.group)
+        self.assertEqual(post_text, post.text)
+        self.assertEqual(post_image, post.image)
         self.assertEqual(author, response_author)
         self.assertEqual(1, response_count)
 
@@ -167,6 +181,14 @@ class PostPagesTest(TestCase):
         response_post = response.context.get('post')
         response_author = response.context.get('author')
         response_count = response.context.get('count')
+        post_author = response_post.author
+        post_group = response_post.group
+        post_text = response_post.text
+        post_image = response_post.image
+        self.assertEqual(post_author, author)
+        self.assertEqual(post_group, PostPagesTest.group)
+        self.assertEqual(post_text, post.text)
+        self.assertEqual(post_image, post.image)
         self.assertEqual(post, response_post)
         self.assertEqual(author, response_author)
         self.assertEqual(1, response_count)
@@ -193,11 +215,18 @@ class PostPagesTest(TestCase):
     def test_group_slug_show_correct_context(self):
         """Шаблон group сформирован с правильным контекстом."""
         response = PostPagesTest.auth_author_client.get(
-            reverse('group_posts', args=[PostPagesTest.group.slug])
+            reverse('group', args=[PostPagesTest.group.slug])
         )
         post = PostPagesTest.post
         response_post = response.context.get('page').object_list[0]
-        self.assertEqual(post, response_post)
+        post_author = response_post.author
+        post_group = response_post.group
+        post_text = response_post.text
+        post_image = response_post.image
+        self.assertEqual(post_author, PostPagesTest.author)
+        self.assertEqual(post_group, PostPagesTest.group)
+        self.assertEqual(post_text, post.text)
+        self.assertEqual(post_image, post.image)
 
     def test_about_author_use_correct_view(self):
         """Шаблон author использует корректный view."""
@@ -254,7 +283,7 @@ class PaginatorViewsTest(TestCase):
 
         cls.templates = {
             1: reverse('index'),
-            2: reverse('group_posts', args=[cls.group.slug]),
+            2: reverse('group', args=[cls.group.slug]),
             3: reverse('profile', args=[cls.author.username])
         }
 
