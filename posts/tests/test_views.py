@@ -1,7 +1,12 @@
+import shutil
+import tempfile
+
 from django import forms
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from posts.models import Group, Post
 
@@ -23,6 +28,19 @@ class PostPagesTest(TestCase):
         )
         cls.authorized_not_author_client = Client()
         cls.authorized_not_author_client.force_login(cls.not_author)
+        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+        cls.small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00'
+            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
+            b'\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
+        cls.uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=cls.small_gif,
+            content_type='image/gif'
+        )
         cls.group = Group.objects.create(
             title='test_group',
             slug='test-slug',
@@ -31,7 +49,8 @@ class PostPagesTest(TestCase):
         cls.post = Post.objects.create(
             text='test_post',
             group=cls.group,
-            author=cls.author
+            author=cls.author,
+            image=cls.uploaded
         )
         cls.templ_names = {
             reverse('index'): 'index.html',
@@ -61,7 +80,13 @@ class PostPagesTest(TestCase):
         cls.form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField
         }
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""

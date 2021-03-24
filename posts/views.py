@@ -35,30 +35,20 @@ def group_posts(request, slug):
 
 @login_required
 def new_post(request):
-    if request.method != 'POST':
-        form = PostForm(request.POST)
-        return render(
-            request,
-            'posts/new.html',
-            {
-                'form': form,
-                'title': 'Новая запись',
-                'button': "Создать новую запись"
-            })
-    form = PostForm(request.POST)
-    if not form.is_valid():
-        return render(
-            request,
-            'posts/new.html',
-            {
-                'form': form,
-                'title': 'Новая запись',
-                'button': 'Создать новую запись'
-            })
-    post = form.save(commit=False)
-    post.author = request.user
-    post.save()
-    return redirect('index')
+    form = PostForm(request.POST or None, files=request.FILES or None)
+    if  form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.save()
+        return redirect('index')
+    return render(
+        request,
+        'posts/new.html',
+        {
+            'form': form,
+            'title': 'Новая запись',
+            'button': 'Создать новую запись'
+        })
 
 
 def profile(request, username):
@@ -95,7 +85,11 @@ def post_edit(request, username, post_id):
             post_id=post.id,
             username=post.author.username
         )
-    form = PostForm(request.POST or None, instance=post)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post
+    )
     if form.is_valid():
         form.save()
         return redirect(
@@ -113,3 +107,16 @@ def post_edit(request, username, post_id):
             'post': post
         }
     )
+
+
+def page_not_found(request, exception):
+    return render(
+        request,
+        "misc/404.html",
+        {"path": request.path},
+        status=404
+    )
+
+
+def server_error(request):
+    return render(request, "misc/500.html", status=500)

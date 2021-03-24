@@ -121,6 +121,11 @@ class PostURLTests(TestCase):
         response = PostURLTests.guest_client.get('/about/tech/')
         self.assertEqual(response.status_code, 200)
 
+    def test_404(self):
+        """При запросе несуществующей страницы сервер возвращает код 404."""
+        response = PostURLTests.guest_client.get('/about/тест/')
+        self.assertEqual(response.status_code, 404)
+
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         for url, template in PostURLTests.templates_url_names.items():
