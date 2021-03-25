@@ -20,7 +20,8 @@ class Post(models.Model):
     )
     pub_date = models.DateTimeField(
         'date published',
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
     author = models.ForeignKey(
         User,
