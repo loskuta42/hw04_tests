@@ -15,9 +15,11 @@ User = get_user_model()
 
 
 class PostPagesTest(TestCase):
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         cls.guest_client = Client()
         cls.author = User.objects.create_user(
             username='test_author'
@@ -29,7 +31,6 @@ class PostPagesTest(TestCase):
         )
         cls.authorized_not_author_client = Client()
         cls.authorized_not_author_client.force_login(cls.not_author)
-        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         cls.small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x01\x00'
             b'\x01\x00\x00\x00\x00\x21\xf9\x04'
@@ -139,7 +140,7 @@ class PostPagesTest(TestCase):
         post_author = response_post.author
         post_group = response_post.group
         post_text = response_post.text
-        post_image =  response_post.image
+        post_image = response_post.image
         self.assertEqual(post_author, PostPagesTest.author)
         self.assertEqual(post_group, PostPagesTest.group)
         self.assertEqual(post_text, post.text)
@@ -328,16 +329,16 @@ class CacheViewsTest(TestCase):
         )
 
     def test_cache_index(self):
-        """Проверка хранения кэша"""
+        """Проверка хранения и очищения кэша для index."""
         response = CacheViewsTest.authorized_client.get(reverse('index'))
         posts = response.content
         Post.objects.create(
             text='test_new_post',
             author=CacheViewsTest.author,
-            )
+        )
         response_old = CacheViewsTest.authorized_client.get(reverse('index'))
         old_posts = response_old.content
-        self.assertEqual(old_posts, posts,'Не возвращает кэшированную страницу.')
+        self.assertEqual(old_posts, posts, 'Не возвращает кэшированную страницу.')
         cache.clear()
         response_new = CacheViewsTest.authorized_client.get(reverse('index'))
         new_posts = response_new.content
